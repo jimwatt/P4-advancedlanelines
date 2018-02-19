@@ -104,8 +104,8 @@ def findLaneLines(pristine,binary_warped, Minv):
     # Generate x and y values for plotting
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
 
-    left_fitx = lpoly(ploty)#left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
-    right_fitx = rpoly(ploty)#right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+    left_fitx = lpoly(ploty)
+    right_fitx = rpoly(ploty)
 
     # out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
     # out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
@@ -147,15 +147,13 @@ def findLaneLines(pristine,binary_warped, Minv):
     right_curverad = calculateCurveRad(y_eval,right_fit,xm_per_pix,ym_per_pix)
 
     # Compute offset from lane center
-    print(binary_warped.shape[0])
-    print(binary_warped.shape[1])
     offcenter = -( 0.5*(lpoly(y_eval)+rpoly(y_eval)) - 0.5*binary_warped.shape[1] ) * xm_per_pix
 
     cv2.putText(img=result,text="Left  : %.1f km" % (left_curverad/1000.0), org=(20,110), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
         fontScale=1.5, color=(255,255,255), thickness=3)
     cv2.putText(img=result,text="Right : %.1f km" % (right_curverad/1000.0), org=(20,170), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
         fontScale=1.5, color=(255,255,255), thickness=3)
-    cv2.putText(img=result,text="Offset : %.2f m" % offcenter, org=(20,50), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+    cv2.putText(img=result,text="Offset : %.0f cm" % (offcenter*100.0), org=(20,50), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
         fontScale=1.5, color=(255,255,255), thickness=3)
     
     return(result)

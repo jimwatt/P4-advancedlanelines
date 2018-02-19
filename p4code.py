@@ -123,8 +123,8 @@ def pipeline(image):
 if __name__ == '__main__':
 
 # Let's choose what we want to do (process still images or video?)
-    processimages = True   
-    processvideos = False
+    processimages = False 
+    processvideos = True
 
 #########################################################################
 # Process images
