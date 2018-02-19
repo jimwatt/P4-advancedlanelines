@@ -2,3 +2,5 @@
 annframes/
 
 frames/
+
+*.pyc
