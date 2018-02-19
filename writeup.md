@@ -90,7 +90,7 @@ In the code, the distortion correction step is applied at line 74 in the code.
 
 #### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `getPerspectiveTransforms()`, which appears in lines 5 through 40 in the file `perspective.py` .  The `getPerspectiveTransforms()` function defines `warpedrectvertices` as the actual pixel locations of a rectangle in a perspective image (with relatively straight lane lines), as well as destination points `rectvertives` which are hard-coded as the corners of a rectangle seen directly from above without perspective.   I chose to hard-code the source and destination points in the following manner: 
+The code for my perspective transform includes a function called `getPerspectiveTransforms()`, which appears in lines 5 through 40 in the file `perspective.py` .  The `getPerspectiveTransforms()` function defines `warpedrectvertices` as the pixel locations of an apparent rectangle in a perspective image (in which the lane lines are relatively straight so that the only warping is due to perspective --- not actual curvature), as well as destination points `rectvertices` which are hard-coded as the corners of a rectangle seen directly from above without perspective.   I chose to hard-code the source and destination points in the following manner: 
 
 ```
 # As determined from an image with relatively straight lane lines.
