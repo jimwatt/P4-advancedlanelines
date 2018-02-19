@@ -64,50 +64,56 @@ def dir_thresh(image, sobel_kernel, thresh):
 
 def col_hsvthresh(image):
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV).astype(np.float)
-
+    # for ii in range(3):
+    #     plt.figure(800+ii)
+    #     plt.imshow(hsv[:,:,ii])
+    #     plt.title("hsv %d" % ii)
     h = hsv[:,:,0]
     s = hsv[:,:,1]
     v = hsv[:,:,2]
-
-    hsv_binary = np.zeros_like(h)
-    hsv_binary[s >= 120 ] = 1
+    hsv_binary = np.zeros_like(v)
+    hsv_binary[v >= 50 ] = 1
+    # plt.figure(803)
+    # plt.imshow(np.uint8(hsv_binary)*255)
+    # plt.title("hsv combined")
+    # plt.colorbar()
     return hsv_binary
 
 def col_rgbthresh(rgb):
-
-
+    # for ii in range(3):
+    #     plt.figure(900+ii)
+    #     plt.imshow(rgb[:,:,ii])
+    #     plt.title("rgb %d" % ii)
+    #     plt.colorbar()
     r = rgb[:,:,0]
     g = rgb[:,:,1]
     b = rgb[:,:,2]
-
     rgb_binary = np.zeros_like(r)
-    rgb_binary[(r >= 100) 
-                & (g >= 100)  
-                & (b >= 100) ] = 1
+    rgb_binary[(r >= 80) 
+                | (g >= 80)  
+                | (b >= 80) ] = 1  
+    # plt.figure(903)
+    # plt.imshow(np.uint8(rgb_binary)*255)
+    # plt.title("rgb combined")
+    # plt.colorbar()
     return rgb_binary
 
 def colorThreshold(img):
-
     hsv = col_hsvthresh(img)
     rgb = col_rgbthresh(img)
-
     combined = np.zeros_like(hsv)
-
-    combined[ (hsv==1) | (rgb == 1) ] = 1
-
+    combined[ (hsv==1) & (rgb == 1) ] = 1
     return combined
 
 
 def gradientThreshold(img, kernelsize):
-
-
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
     s_channel = hls[:,:,2]
     gradx = abs_sobel_thresh(s_channel, orient='x', sobel_kernel=kernelsize, thresh=(25, 255))
     grady = abs_sobel_thresh(s_channel, orient='y', sobel_kernel=kernelsize, thresh=(25, 255))
-    mag_binary = mag_thresh(s_channel, sobel_kernel=kernelsize, thresh=(40, 255))
+    mag_binary = mag_thresh(s_channel, sobel_kernel=kernelsize, thresh=(6, 255))
     slope = 0.4
-    dir_binary = dir_thres(s_channel, sobel_kernel=kernelsize, thresh=(-slope*np.pi, slope*np.pi))
+    dir_binary = dir_thresh(s_channel, sobel_kernel=kernelsize, thresh=(-slope*np.pi, slope*np.pi))
     combined = np.zeros_like(dir_binary)
     combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
     return combined
@@ -373,10 +379,10 @@ def pipeline(image):
     imy = image.shape[0]
     img = np.copy(image)
 
-    if makeplots:
-        plt.figure(100)
-        plt.imshow(img)
-        plt.title("Original Image")
+    # if makeplots:
+    #     plt.figure(100)
+    #     plt.imshow(img)
+    #     plt.title("Original Image")
 
     #####################################################
     # 1. Use camera calibration to remove distortion
@@ -384,10 +390,10 @@ def pipeline(image):
     img = cv2.undistort(img, mtx, dist, None, mtx)
     undistorted = np.copy(img)
 
-    if makeplots:
-        plt.figure(101)
-        plt.imshow(img)
-        plt.title("Distortion Correction")
+    # if makeplots:
+    #     plt.figure(101)
+    #     plt.imshow(img)
+    #     plt.title("Distortion Correction")
 
     ######################################################
     # 2. Get warped perspective
@@ -402,15 +408,15 @@ def pipeline(image):
     #######################################################
     # 3. Consider only the region of interest 
     #######################################################   
-    # dx = 0
-    # dybot = 145
-    # ROIvertices = np.array([[(dx,imy-dybot),(dx, 0), (imx-dx, 0), (imx-dx,imy-dybot)]], dtype=np.int32)
-    # img = region_of_interest(img,ROIvertices)
+    dx = 0
+    dybot = 145
+    ROIvertices = np.array([[(dx,imy-dybot),(dx, 0), (imx-dx, 0), (imx-dx,imy-dybot)]], dtype=np.int32)
+    img = region_of_interest(img,ROIvertices)
 
-    if makeplots:
-        plt.figure(103)
-        plt.imshow(img)
-        plt.title("Cropped to Region of Interest")
+    # if makeplots:
+    #     plt.figure(103)
+    #     plt.imshow(img)
+    #     plt.title("Cropped to Region of Interest")
 
         # imgpoly = np.copy(img)
         # draw_polygon(imgpoly,ROIvertices)
@@ -421,8 +427,25 @@ def pipeline(image):
     # 4. Color and gradient thresholding in HLS
     ########################################################
     # combined = gradientThreshold(img,kernelsize)
-    combined = colorThreshold(img)
+    colpixels = colorThreshold(img)
+    scaled_col = np.uint8(255*colpixels)
+    if makeplots:
+        plt.figure(304)
+        plt.imshow(scaled_col)
+        plt.title("Color Thresholded")
+
+    grpixels = gradientThreshold(img,kernelsize)
+    scaled_gr = np.uint8(255*grpixels)
+    if makeplots:
+        plt.figure(305)
+        plt.imshow(scaled_gr)
+        plt.title("Gradient Thresholded")
+
+    combined = np.zeros_like(colpixels)
+    combined[ (colpixels==1) & (grpixels == 1) ] = 1
+
     scaled_combined = np.uint8(255*combined)
+
 
     if makeplots:
         plt.figure(104)
@@ -439,12 +462,12 @@ def pipeline(image):
         plt.imshow(llimg)
         plt.title("Polynomial Fit")
 
-    return scaled_combined
+    return llimg
     
 
 if __name__ == '__main__':
 
-    processimages = False
+    processimages = False   
 
     processvideos = True
 
@@ -462,7 +485,7 @@ if __name__ == '__main__':
             print(imagename)
 
             image = mpimg.imread(imagename)
-            print(image.shape)
+            
             result = pipeline(image)
 
             # Plot the result
@@ -490,10 +513,6 @@ if __name__ == '__main__':
             clip1 = VideoFileClip(video)
             processed_clip = clip1.fl_image(lambda img: pipeline(img)) # run the lane lines processor
             get_ipython().run_line_magic('time', 'processed_clip.write_videofile(processed_video, audio=False)')    # save the output
-
-
-
-
 
     print("DONE!!!")
     plt.show()
