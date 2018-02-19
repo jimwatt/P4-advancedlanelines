@@ -12,6 +12,13 @@ def window_mask(width, height, img_ref, center,level):
     output[int(img_ref.shape[0]-(level+1)*height):int(img_ref.shape[0]-level*height),max(0,int(center-width/2)):min(int(center+width/2),img_ref.shape[1])] = 1
     return output
 
+# Given a y value in pixels, a quadtratic fit in pixels, and scale factors xmpp, and ympp, compute radius of curvature in meters
+def calculateCurveRad(y,fit,xmpp,ympp):
+    A = fit[0]*xmpp/(ympp*ympp)
+    B = fit[1]*xmpp/ympp
+    return (1.0 + ((2.0*A*y + B)**2)**(1.5)) / np.abs(2*A)
+
+
 # Given the binary warped image containing pixels corresponding to the lane lines, compute a polynomial fit to the lanelines, and draw them on the pristine image.
 def findLaneLines(pristine,binary_warped, Minv):
 
@@ -21,6 +28,7 @@ def findLaneLines(pristine,binary_warped, Minv):
     # plt.figure(80)
     # plt.plot(histogram)
     # plt.show()
+
     # Create an output image to draw on and  visualize the result
     out_img = np.uint8(np.dstack((binary_warped, binary_warped, binary_warped))*255)
 
@@ -89,12 +97,15 @@ def findLaneLines(pristine,binary_warped, Minv):
 
     # Fit a second order polynomial to each
     left_fit = np.polyfit(lefty, leftx, 2)
+    lpoly = np.poly1d(left_fit)
     right_fit = np.polyfit(righty, rightx, 2)
+    rpoly = np.poly1d(right_fit)
 
     # Generate x and y values for plotting
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
-    left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
-    right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+
+    left_fitx = lpoly(ploty)#left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+    right_fitx = rpoly(ploty)#right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
 
     # out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
     # out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
@@ -122,4 +133,29 @@ def findLaneLines(pristine,binary_warped, Minv):
     # Combine the result with the original image
     result = cv2.addWeighted(pristine, 1, newwarp, 0.3, 0)
 
+    ###############################################################################S
+    # Determine radius of curvature, and offset from center
+
+    # Define conversions in x and y from pixels space to meters
+    ym_per_pix = 30/720 # meters per pixel in y dimension
+    xm_per_pix = 3.7/700 # meters per pixel in x dimension
+
+     # Define y-value where we want radius of curvature
+    # I'll choose the maximum y-value, corresponding to the bottom of the image
+    y_eval = np.max(ploty)
+    left_curverad = calculateCurveRad(y_eval,left_fit,xm_per_pix,ym_per_pix)
+    right_curverad = calculateCurveRad(y_eval,right_fit,xm_per_pix,ym_per_pix)
+
+    # Compute offset from lane center
+    print(binary_warped.shape[0])
+    print(binary_warped.shape[1])
+    offcenter = -( 0.5*(lpoly(y_eval)+rpoly(y_eval)) - 0.5*binary_warped.shape[1] ) * xm_per_pix
+
+    cv2.putText(img=result,text="Left  : %.1f km" % (left_curverad/1000.0), org=(20,110), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+        fontScale=1.5, color=(255,255,255), thickness=3)
+    cv2.putText(img=result,text="Right : %.1f km" % (right_curverad/1000.0), org=(20,170), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+        fontScale=1.5, color=(255,255,255), thickness=3)
+    cv2.putText(img=result,text="Offset : %.2f m" % offcenter, org=(20,50), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+        fontScale=1.5, color=(255,255,255), thickness=3)
+    
     return(result)

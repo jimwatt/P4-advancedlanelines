@@ -132,8 +132,7 @@ if __name__ == '__main__':
 
     if processimages:
         # imagenames = glob.glob('./test_images/*.jpg')
-        imagenames = ["./frames/frame_0363.jpg"]
-        # imagenames = ["./test_images/test4.jpg"]
+        imagenames = ["./test_images/test4.jpg"]
 
         for imagename in imagenames:
 
