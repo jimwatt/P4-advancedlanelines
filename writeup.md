@@ -1,6 +1,8 @@
-## Writeup Template
+## Advanced Lane Line Detection
 
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+### Goal:
+
+Given a video stream containing images of the road ahead, use the painted lane markings to annotate the lane ahead. 
 
 ---
 
@@ -8,18 +10,17 @@
 
 The goals / steps of this project are the following:
 
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
-* Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
+* Correct the images for camera distortion.
+* Apply perspective warping to obtain a "bird's-eye" view of the road ahead.
+* Crop to the region of interest.
+* Use color and gradient thresholding to detect pixels corresponding to lane line markings.
+* Use simple windowing to determine location of the left and right lane lines at multiple locations in the road ahead.
+* Fit the left and right lane lane locations with a quadratic polynomial.   
+* From the polynomial fit, determine the radius of curvature of each lane line, and the offset from center of the car in the lane.
 
-[//]: # (Image References)
+[//]: # "Image References"
 
-[image1]: ./examples/undistort_output.png "Undistorted"
+[image1]: ./output_images/undistort_output.png "Undistorted"
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -33,11 +34,19 @@ The goals / steps of this project are the following:
 
 ---
 
-### Writeup / README
+### Writeup 
 
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
+#### 1. Provide a Writeup that includes all the rubric points and how you addressed each one.    
 
 You're reading it!
+
+The source code for this project is found in the following files:
+
+1. **p4code.py** : The main entry point for the code.  Run the code by entering `python p4code.py`
+2. **utility.py** : Various general purpose helper functions for working with images, including color and gradient thresholding.
+3. **calibrate.py** : Functions for performing camera calibration using images of chessboards to correct for distortion.
+4. **perspective.py** : Functions for performing image perspective transformations.  This is how we achieve the birds eye view of the road.
+5. **lanelines.py** : Functions for extracting lanelines from a previously thresholded image.  The thresholded image should try to retain only those pixels that are part of the lane markings.  
 
 ### Camera Calibration
 
@@ -83,9 +92,9 @@ dst = np.float32(
 
 This resulted in the following source and destination points:
 
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
+| Source        | Destination   |
+|:-------------:|:-------------:|
+| 585, 460      | 320, 0        |
 | 203, 720      | 320, 720      |
 | 1127, 720     | 960, 720      |
 | 695, 460      | 960, 0        |

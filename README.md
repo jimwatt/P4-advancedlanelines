@@ -42,6 +42,18 @@ git clone https://github.com/jimwatt/P4-advancedlanelines.git
   Consider changing flags in main() to switch between processing video and still images.
 
 
+##Files##
+
+The source code for this project is found in the following files:
+
+1. **p4code.py** : The main entry point for the code.  Run the code by entering `ipython p4code.py`
+2. **utility.py** : Various general purpose helper functions for working with images, including color and gradient thresholding.
+3. **calibrate.py** : Functions for performing camera calibration using images of chessboards to correct for distortion.
+4. **perspective.py** : Functions for performing image perspective transformations.  This is how we achieve the birds eye view of the road.
+5. **lanelines.py** : Functions for extracting and annotating lanelines from a previously thresholded image.  The thresholded image should try to retain only those pixels that are part of the lane markings.  
+
+
+
 ## Authors
 
 * **James Watt**
