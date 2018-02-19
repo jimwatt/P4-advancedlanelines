@@ -8,10 +8,13 @@ import glob
 import pickle as pkl
 from moviepy.editor import VideoFileClip
 
-##############################################################
+############################################################################
 # Import some additional helper functions
 import utility as ut # general purpose utility and helper functions
 import lanelines as ll # all tools for extracting lanelines from a thresholded image
+import calibrate as cal # camera calibration functionality
+import perspective as ps # perspective transformation (warping) functionality
+#############################################################################
 
 ##################################################################################################
 # A. CAMERA CALIBRATION: Calibrate the Camera: Find the parameters to correct for image distortion
@@ -19,39 +22,8 @@ import lanelines as ll # all tools for extracting lanelines from a thresholded i
 
 # Do we want to recompute the camera calibration, or just use saved values from last time
 compute_calibration = False
-
 if compute_calibration:
-    print('Calibrating camera ...')
-    nx = 9
-    ny = 6
-    chessimgs = glob.glob('./camera_cal/*.jpg')
-
-    # termination criteria for sub-pixel accuracy in finding chessboard corners
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    objp = np.zeros((nx*ny,3), np.float32)
-    objp[:,:2] = np.mgrid[0:nx,0:ny].T.reshape(-1,2)
-
-    objpoints = []
-    imgpoints = []
-
-    for chessimg in chessimgs:
-        img = cv2.imread(chessimg)
-        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-        ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
-
-        img_size = (gray.shape[1], gray.shape[0])
-
-        if ret == True:
-            # If we found corners, draw them! 
-            # cv2.drawChessboardCorners(img, (nx, ny), corners, ret)
-            # cv2.imshow('img', img)
-
-            objpoints.append(objp)
-            cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-            imgpoints.append(corners)
-
-
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img_size, None, None)
+    ret, mtx, dist, rvecs, tvecs = cal.calibrateCamera()
     print("Saving distortion coefficients ...")
     pkl.dump( (ret, mtx, dist, rvecs, tvecs) , open( "distortion.p", "wb" ) )
 else:
@@ -64,43 +36,11 @@ else:
 # cv2.imshow('chessimg', chessimg)
 # cv2.imshow('uchessimg', uchessimg)ret, mtx, dist, rvecs, tvecs = 
 
-###########################################################################################
-# B. PERSPECTIVE TRANSFORM: Determine the perspective transform for creating overhead view
-###########################################################################################
-imgrect = mpimg.imread("./test_images/straight_lines1.jpg")
-imx = imgrect.shape[1]
-imy = imgrect.shape[0]
+############################################################################################################
+# B. PERSPECTIVE TRANSFORM: Determine the perspective transform for creating overhead view (and its inverse)
+############################################################################################################
 
-# Hard-code these handselected points from the road
-warpedrectvertices = np.array([
-    [305,650],
-    [525, 500], 
-    [760, 500], 
-    [1000,650]], dtype= np.float32)
-
-# This is where those hand-selected points defined above ought to be in our bird's-eye view
-offset = 160
-rectvertices = np.array([
-    [offset, imy-offset],
-    [offset, offset],
-    [imx-offset, offset],
-    [imx-offset, imy-offset]], dtype = np.float32)
-
-# Ge the perspective transform and its inverse
-M = cv2.getPerspectiveTransform(warpedrectvertices, rectvertices)
-Minv = cv2.getPerspectiveTransform(rectvertices, warpedrectvertices)
-
-# warped = cv2.warpPerspective(imgrect, M, (imx, imy))
-
-# Plot the perspecetive transform
-# plt.figure(10)
-# plt.imshow(warped)
-
-# my_draw_polygon(imgrect,warpedrectvertices[0])
-# plt.figure(28)
-# plt.imshow(imgrect)
-# plt.show()
-
+M,Minv = ps.getPerspectiveTransforms()
 
 ##########################################################
 # PIPELINE: Define the main image processing pipeline
@@ -124,7 +64,7 @@ def pipeline(image):
     # 1. Use camera calibration to remove distortion
     ####################################################
     img = cv2.undistort(img, mtx, dist, None, mtx)
-    undistorted = np.copy(img)
+    undistorted = np.copy(img)      # save this image for later, so that we can use it for annotating
 
     # plt.figure(101)
     # plt.imshow(img)
@@ -156,7 +96,7 @@ def pipeline(image):
     # plt.imshow(imgpoly)
 
     #######################################################
-    # 4. Color and gradient thresholding in HLS
+    # 4. Color and gradient thresholding in HLS and RGB
     ########################################################
     combined_binary = ut.colgradientThresholding(img)
     scaled_combined = np.uint8(255*combined_binary)
@@ -183,8 +123,8 @@ def pipeline(image):
 if __name__ == '__main__':
 
 # Let's choose what we want to do (process still images or video?)
-    processimages = False   
-    processvideos = True
+    processimages = True   
+    processvideos = False
 
 #########################################################################
 # Process images
