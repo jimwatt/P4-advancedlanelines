@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 ##########################################################################
 # Define some general purpose utility helper functions
@@ -19,14 +20,6 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=5):
     for line in lines:
         x1,y1,x2,y2 = line[0]
         cv2.line(img, (x1, y1), (x2, y2), color, thickness)
-
-# draw a polygon on an image
-def my_draw_polygon(img,vertices):
-    for ii in range(len(vertices)):
-        ind1 = (ii+1) % len(vertices)
-        v0 = vertices[ii]
-        v1 = vertices[ind1]
-        draw_lines(img, [[(v0[0],v0[1],v1[0],v1[1])]])
 
 # compute the absolute value of gradient in x or y direction
 def abs_sobel_thresh(image, orient, sobel_kernel, thresh):
@@ -72,10 +65,11 @@ def col_hsvthresh(image):
     v = hsv[:,:,2]
     hsv_binary = np.zeros_like(v)
     hsv_binary[v >= 50 ] = 1
-    # plt.figure(803)
-    # plt.imshow(np.uint8(hsv_binary)*255)
-    # plt.title("hsv combined")
-    # plt.colorbar()
+    plt.figure(803)
+    plt.imshow(np.uint8(hsv_binary)*255)
+    plt.title("HSV combined")
+    plt.savefig("output_images/hsv_combined.png")
+    plt.close()
     return hsv_binary
 
 # threshold an image using rgb values
@@ -92,10 +86,11 @@ def col_rgbthresh(rgb):
     rgb_binary[(r >= 80) 
                 | (g >= 80)  
                 | (b >= 80) ] = 1  
-    # plt.figure(903)
-    # plt.imshow(np.uint8(rgb_binary)*255)
-    # plt.title("rgb combined")
-    # plt.colorbar()
+    plt.figure(903)
+    plt.imshow(np.uint8(rgb_binary)*255)
+    plt.title("RGB combined")
+    plt.savefig("output_images/rgb_combined.png")
+    plt.close()
     return rgb_binary
 
 # threshold an image on color using rgb and hasv spaces
@@ -127,16 +122,20 @@ def colgradientThresholding(img):
     colpixels = colorThreshold(img)
     scaled_col = np.uint8(255*colpixels)
     
-    # plt.figure(304)
-    # plt.imshow(scaled_col)
-    # plt.title("Color Thresholded")
+    plt.figure(304)
+    plt.imshow(scaled_col)
+    plt.title("Color Thresholded")
+    plt.savefig("output_images/color_threshold.png")
+    plt.close()
 
     grpixels = gradientThreshold(img,kernelsize)
     scaled_gr = np.uint8(255*grpixels)
     
-    # plt.figure(305)
-    # plt.imshow(scaled_gr)
-    # plt.title("Gradient Thresholded")
+    plt.figure(305)
+    plt.imshow(scaled_gr)
+    plt.title("Gradient Thresholded")
+    plt.savefig("output_images/gradient_threshold.png")
+    plt.close()
 
     combined_binary = np.zeros_like(colpixels)
     combined_binary[ (colpixels==1) & (grpixels == 1) ] = 1

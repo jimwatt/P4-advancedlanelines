@@ -1,6 +1,7 @@
 
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 #################################################################################'
 # Functionality for finding lanelines
@@ -25,9 +26,11 @@ def findLaneLines(pristine,binary_warped, Minv):
     # Take a histogram of the (bottom) half of the image
     histogram = np.sum(binary_warped, axis=0)
 
-    # plt.figure(80)
-    # plt.plot(histogram)
-    # plt.show()
+    plt.figure(80)
+    plt.plot(histogram)
+    plt.title("Histogram of Laneline Pixels")
+    plt.savefig("output_images/histogram.png")
+    plt.close()
 
     # Create an output image to draw on and  visualize the result
     out_img = np.uint8(np.dstack((binary_warped, binary_warped, binary_warped))*255)
@@ -107,14 +110,16 @@ def findLaneLines(pristine,binary_warped, Minv):
     left_fitx = lpoly(ploty)
     right_fitx = rpoly(ploty)
 
-    # out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
-    # out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
-    # plt.figure(30)
-    # plt.imshow(out_img)
-    # plt.plot(left_fitx, ploty, color='yellow')
-    # plt.plot(right_fitx, ploty, color='yellow')
-    # plt.xlim(0, 1280)
-    # plt.ylim(720, 0)
+    out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
+    out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
+    plt.figure(30)
+    plt.imshow(out_img)
+    plt.plot(left_fitx, ploty, color='yellow')
+    plt.plot(right_fitx, ploty, color='yellow')
+    plt.xlim(0, 1280)
+    plt.ylim(720, 0)
+    plt.savefig("output_images/searching.png")
+    plt.close()
 
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
@@ -134,7 +139,7 @@ def findLaneLines(pristine,binary_warped, Minv):
     result = cv2.addWeighted(pristine, 1, newwarp, 0.3, 0)
 
     ###############################################################################S
-    # Determine radius of curvature, and offset from center
+    # Determine radius of curvature, and offset from center, and write on the image
 
     # Define conversions in x and y from pixels space to meters
     ym_per_pix = 30/720 # meters per pixel in y dimension
