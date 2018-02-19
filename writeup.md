@@ -26,14 +26,14 @@ Example output is shown here:
 
 The goals / steps of this project are the following:
 
-* Correct the images for camera distortion.
-* Apply perspective warping to obtain a "bird's-eye" view of the road ahead.
-* Crop to the region of interest.
-* Use color and gradient thresholding to detect pixels corresponding to lane line markings.
-* Use simple windowing to determine location of the left and right lane lines at multiple locations in the road ahead.
-* Fit the left and right lane line locations with a quadratic polynomial.   
-* From the polynomial fit, determine the radius of curvature of each lane line, and the offset from center of the car in the lane.
-* Map the fitted lane lines to the original image and annotate the image.
+* **Camera Calibration** : Correct the images for camera distortion.
+* **Perspective Warping** : Apply perspective warping to obtain a "bird's-eye" view of the road ahead.
+* **Image Cropping** : Crop the image to the region of interest.
+* **Pixel Thresholding** : Use color and gradient thresholding to detect pixels corresponding to lane line markings.
+* **Peak Finding** : Use simple windowing to determine location of the left and right lane lines at multiple locations in the road ahead.
+* **Curve Fitting** : Fit the left and right lane line locations with a quadratic polynomial.   
+* **Lane Geometry** : From the polynomial fit, determine the radius of curvature of each lane line, and the offset from center of the car in the lane.
+* **Lane Annotation** : Map the fitted lane lines to the original image and annotate the image.
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -61,15 +61,15 @@ The source code for this project is found in the following files:
 
 The code for this step is contained in the `calibrateCamera()` function definition in **calibrate.py** (lines 2-33).  
 
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `obj` is just a fixed array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  The `imgpoints` are detected using the openCV function `cv2.findChessBoardCorners()`.  Note that I use the `cv2.cornerSubPix()` routine (that uses an iterative solver) to further refine the corner locations within the image to subpixel resolution.
-
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+* I start by preparing "object points", which are the (x, y, z) coordinates of the chessboard corners in the world. I constrain the rectified chessboard corners to be fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `obj` is just a fixed array of coordinates, and `objpoints` will be appended with a copy of `obj` every time I successfully detect all chessboard corners in a test image. 
+* The list `imgpoints` is appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection (for each of the chessboard images in `./camer_cal`).  The `imgpoints` are detected using the openCV function `cv2.findChessBoardCorners()`.  Note that I used the `cv2.cornerSubPix()` routine (that uses an iterative solver) to further refine the corner locations within the image to subpixel resolution.
+* I then used `objpoints` and `imgpoints` as source and destination pairs to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
 
 Applying camera calibration corrections to the following image:
 
 ![alt text][image2]
 
-we obtain the following corrected image:
+yields the following corrected image:
 
 ![alt text][image3]
 
