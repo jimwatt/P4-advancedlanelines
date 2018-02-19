@@ -17,7 +17,7 @@ import calibrate as cal # camera calibration functionality
 import perspective as ps # perspective transformation (warping) functionality
 #############################################################################
 
-saveplots = True
+saveplots = False
 
 ##################################################################################################
 # A. CAMERA CALIBRATION: Calibrate the Camera: Find the parameters to correct for image distortion
@@ -141,8 +141,8 @@ def pipeline(image):
 if __name__ == '__main__':
 
 # Let's choose what we want to do (process still images or video?)
-    processimages = True 
-    processvideos = False
+    processimages = False 
+    processvideos = True
 
 #########################################################################
 # Process images
