@@ -1,8 +1,21 @@
 ## Advanced Lane Line Detection
 
+[//]: #	"Image References"
+[image1]: ./output_images/ann_test6.jpg	"Example Output"
+[image2]: ./output_images/chessimg.png	"Distorted Image"
+[image3]: ./output_images/uchessimg.png	"Corrected Image after Camera Calibration"
+[image4]: ./output_images/original_image.png	"Original Image"
+[image5]: ./output_images/distortion_correction.png	"Distortion Correction"
+[image6]: ./examples/example_output.jpg	"Output"
+[video1]: ./project_video.mp4	"Video"
+
 ### Goal:
 
 Given a video stream containing images of the road ahead, use the painted lane markings to annotate the lane ahead. 
+
+Example output is shown here:
+
+![alt text][image1]
 
 ---
 
@@ -15,18 +28,9 @@ The goals / steps of this project are the following:
 * Crop to the region of interest.
 * Use color and gradient thresholding to detect pixels corresponding to lane line markings.
 * Use simple windowing to determine location of the left and right lane lines at multiple locations in the road ahead.
-* Fit the left and right lane lane locations with a quadratic polynomial.   
+* Fit the left and right lane line locations with a quadratic polynomial.   
 * From the polynomial fit, determine the radius of curvature of each lane line, and the offset from center of the car in the lane.
-
-[//]: # "Image References"
-
-[image1]: ./output_images/undistort_output.png "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+* Map the fitted lane lines to the original image and annotate the image.
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -46,26 +50,36 @@ The source code for this project is found in the following files:
 2. **utility.py** : Various general purpose helper functions for working with images, including color and gradient thresholding.
 3. **calibrate.py** : Functions for performing camera calibration using images of chessboards to correct for distortion.
 4. **perspective.py** : Functions for performing image perspective transformations.  This is how we achieve the birds eye view of the road.
-5. **lanelines.py** : Functions for extracting lanelines from a previously thresholded image.  The thresholded image should try to retain only those pixels that are part of the lane markings.  
+5. **lanelines.py** : Functions for extracting lane lines from a previously thresholded image.  The thresholded image should try to retain only those pixels that are part of the lane markings.  
 
 ### Camera Calibration
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./examples/example.ipynb" (or in lines # through # of the file called `some_file.py`).  
+The code for this step is contained in the `calibrateCamera()` function definition in **calibrate.py** (lines 2-33).  
 
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `obj` is just a fixed array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  The `imgpoints` are detected using the openCV function `cv2.findChessBoardCorners()`.  Note that I use the `cv2.cornerSubPix()` routine (that uses an iterative solver) to further refine the corner locations within the image to subpixel resolution.
 
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
 
-![alt text][image1]
+Applying camera calibration corrections to the following image:
+
+![alt text][image2]
+
+we obtain the following corrected image:
+
+![alt text][image3]
 
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
+After having obtained the image correction coefficients from the chessboard images, we can apply these corrections to the images in the video stream.  For example, here is a typical image:
+![alt text][image4]
+
+After applying the distortion corrections, we obtain this (very similar looking) image:
+
+![alt text][image5]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
