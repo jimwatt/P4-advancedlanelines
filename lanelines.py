@@ -153,7 +153,7 @@ def findLaneLines(pristine,binary_warped, Minv):
         fontScale=1.5, color=(255,255,255), thickness=3)
     cv2.putText(img=result,text="Right : %.1f km" % (right_curverad/1000.0), org=(20,170), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
         fontScale=1.5, color=(255,255,255), thickness=3)
-    cv2.putText(img=result,text="Offset : %.0f cm" % (offcenter*100.0), org=(20,50), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+    cv2.putText(img=result,text="Offset : %d cm" % np.int(offcenter*100.0), org=(20,50), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
         fontScale=1.5, color=(255,255,255), thickness=3)
     
     return(result)
