@@ -8,9 +8,11 @@
 [image5]: ./output_images/distortion_correction.png	"Distortion Correction "
 [image6]: ./output_images/perspective.png	"Perspective"
 [image7]: ./output_images/birdseye.png	"Birds-Eye"
-[image1 \]  ./output_images/ann_test6.jpg Example Output]: 
-[image6]: ./output_images/perspective.png	"Perspective"
-[video1]: ./project_video.mp4	"Video"
+[image8]: ./output_images/cropped.png	"Cropped"
+[image9]: ./output_images/color_threshold.png	"Color Thresholded"
+[image10]: ./output_images/gradient_threshold.png	"Gradient Thresholded"
+[image11]: ./output_images/thresholded.png	"Thresholded"
+[video1]: ./ann_project_video.mp4	"Video"
 
 ### Goal:
 
@@ -80,6 +82,7 @@ We now describe the steps in the image processing pipeline.  The pipeline is def
 #### 1. Provide an example of a distortion-corrected image.
 
 After having obtained the image correction coefficients from the chessboard images, we can apply these corrections to the images in the video stream.  For example, here is a typical image:
+
 ![alt text][image4]
 
 After applying the distortion corrections, we obtain this (very similar looking) image:
@@ -123,7 +126,11 @@ This resulted in the following source and destination points:
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
+**Source:**
+
 ![alt text][image6]
+
+**Destination:**
 
 ![alt text][image7]
 
@@ -131,9 +138,17 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines 118 through 143 in `utility.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines 118 through 143 in `utility.py`).  
 
-![alt text][image3]
+I found that neither color thresholding alone, nor gradient thresholding alone was sufficient to detect the lane markings along the entire length of the road.
+
+For the following (warped) original image:
+
+![alt text][image8]
+
+![alt text][image9]![alt text][image10]
+
+![alt text][image11]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 

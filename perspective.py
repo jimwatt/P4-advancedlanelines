@@ -48,17 +48,17 @@ def getPerspectiveTransforms():
 	cv2.circle(img=warped,center=(rectvertices[2,0],rectvertices[2,1]), radius=15, color=(0,0,255), thickness=-1)
 	cv2.circle(img=warped,center=(rectvertices[3,0],rectvertices[3,1]), radius=15, color=(255,255,0), thickness=-1)
 
-	# # Plot the perspecetive transform
-	# plt.figure(1000)
-	# plt.imshow(imgrect)
-	# plt.title('Perspective Image')
-	# plt.savefig('output_images/perspective.png')
-	# plt.close()
+	# Plot the perspecetive transform
+	plt.figure(1000)
+	plt.imshow(imgrect)
+	plt.title('Perspective Image')
+	plt.savefig('output_images/perspective.png')
+	plt.close()
 
-	# plt.figure(1001)
-	# plt.imshow(warped)
-	# plt.title('Bird\'s-Eye Image')
-	# plt.savefig('output_images/birdseye.png')
-	# plt.close()
+	plt.figure(1001)
+	plt.imshow(warped)
+	plt.title('Bird\'s-Eye Image')
+	plt.savefig('output_images/birdseye.png')
+	plt.close()
 
 	return M,Minv

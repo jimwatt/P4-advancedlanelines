@@ -26,11 +26,11 @@ def findLaneLines(pristine,binary_warped, Minv):
     # Take a histogram of the (bottom) half of the image
     histogram = np.sum(binary_warped, axis=0)
 
-    # plt.figure(80)
-    # plt.plot(histogram)
-    # plt.title("Histogram of Laneline Pixels")
-    # plt.savefig("output_images/histogram.png")
-    # plt.close()
+    plt.figure(80)
+    plt.plot(histogram)
+    plt.title("Histogram of Laneline Pixels")
+    plt.savefig("output_images/histogram.png")
+    plt.close()
 
     # Create an output image to draw on and  visualize the result
     out_img = np.uint8(np.dstack((binary_warped, binary_warped, binary_warped))*255)
@@ -112,14 +112,14 @@ def findLaneLines(pristine,binary_warped, Minv):
 
     out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
     out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
-    # plt.figure(30)
-    # plt.imshow(out_img)
-    # plt.plot(left_fitx, ploty, color='yellow')
-    # plt.plot(right_fitx, ploty, color='yellow')
-    # plt.xlim(0, 1280)
-    # plt.ylim(720, 0)
-    # plt.savefig("output_images/searching.png")
-    # plt.close()
+    plt.figure(30)
+    plt.imshow(out_img)
+    plt.plot(left_fitx, ploty, color='yellow')
+    plt.plot(right_fitx, ploty, color='yellow')
+    plt.xlim(0, 1280)
+    plt.ylim(720, 0)
+    plt.savefig("output_images/searching.png")
+    plt.close()
 
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)

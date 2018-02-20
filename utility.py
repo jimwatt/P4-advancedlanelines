@@ -65,11 +65,11 @@ def col_hsvthresh(image):
     v = hsv[:,:,2]
     hsv_binary = np.zeros_like(v)
     hsv_binary[v >= 50 ] = 1
-    # plt.figure(803)
-    # plt.imshow(np.uint8(hsv_binary)*255)
-    # plt.title("HSV combined")
-    # plt.savefig("output_images/hsv_combined.png")
-    # plt.close()
+    plt.figure(803)
+    plt.imshow(np.uint8(hsv_binary)*255)
+    plt.title("HSV combined")
+    plt.savefig("output_images/hsv_combined.png")
+    plt.close()
     return hsv_binary
 
 # threshold an image using rgb values
@@ -86,11 +86,11 @@ def col_rgbthresh(rgb):
     rgb_binary[(r >= 80) 
                 | (g >= 80)  
                 | (b >= 80) ] = 1  
-    # plt.figure(903)
-    # plt.imshow(np.uint8(rgb_binary)*255)
-    # plt.title("RGB combined")
-    # plt.savefig("output_images/rgb_combined.png")
-    # plt.close()
+    plt.figure(903)
+    plt.imshow(np.uint8(rgb_binary)*255)
+    plt.title("RGB combined")
+    plt.savefig("output_images/rgb_combined.png")
+    plt.close()
     return rgb_binary
 
 # threshold an image on color using rgb and hasv spaces
@@ -122,20 +122,20 @@ def colgradientThresholding(img):
     colpixels = colorThreshold(img)
     scaled_col = np.uint8(255*colpixels)
     
-    # plt.figure(304)
-    # plt.imshow(scaled_col)
-    # plt.title("Color Thresholded")
-    # plt.savefig("output_images/color_threshold.png")
-    # plt.close()
+    plt.figure(304)
+    plt.imshow(scaled_col)
+    plt.title("Color Thresholded")
+    plt.savefig("output_images/color_threshold.png")
+    plt.close()
 
     grpixels = gradientThreshold(img,kernelsize)
     scaled_gr = np.uint8(255*grpixels)
     
-    # plt.figure(305)
-    # plt.imshow(scaled_gr)
-    # plt.title("Gradient Thresholded")
-    # plt.savefig("output_images/gradient_threshold.png")
-    # plt.close()
+    plt.figure(305)
+    plt.imshow(scaled_gr)
+    plt.title("Gradient Thresholded")
+    plt.savefig("output_images/gradient_threshold.png")
+    plt.close()
 
     combined_binary = np.zeros_like(colpixels)
     combined_binary[ (colpixels==1) & (grpixels == 1) ] = 1
