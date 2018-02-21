@@ -17,7 +17,7 @@ import calibrate as cal # camera calibration functionality
 import perspective as ps # perspective transformation (warping) functionality
 #############################################################################
 
-mode = 1
+mode = 0
 if(mode==0):
     saveplots = False
 else:
@@ -161,10 +161,8 @@ if __name__ == '__main__':
 #########################################################################
 
     if processimages:
-        # imagenames = glob.glob('./test_images/*.jpg')
+        imagenames = glob.glob('./test_images/*.jpg')
         # imagenames = ['./test_images/test3.jpg']
-
-        imagenames = ['./frames/frame_0613.jpg']
 
         for imagename in imagenames:
 
