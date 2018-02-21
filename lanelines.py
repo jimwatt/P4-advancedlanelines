@@ -56,9 +56,9 @@ def findLaneLines(pristine,binary_warped, Minv):
     leftx_current = leftx_base
     rightx_current = rightx_base
     # Set the width of the windows +/- margin
-    margin = 150
+    margin = 50
     # Set minimum number of pixels found to recenter window
-    minpix = 20
+    minpix = 10
     # Create empty lists to receive left and right lane pixel indices
     left_lane_inds = []
     right_lane_inds = []
@@ -86,6 +86,7 @@ def findLaneLines(pristine,binary_warped, Minv):
         left_lane_inds.append(good_left_inds)
         right_lane_inds.append(good_right_inds)
         # If you found > minpix pixels, recenter next window on their mean position
+
         if len(good_left_inds) > minpix:
             leftx_current = np.int(np.mean(nonzerox[good_left_inds]))
         if len(good_right_inds) > minpix:        

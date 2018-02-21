@@ -19,7 +19,7 @@ import perspective as ps # perspective transformation (warping) functionality
 
 mode = 1
 if(mode==0):
-    saveplots = True
+    saveplots = False
 else:
     saveplots = False
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
         # imagenames = glob.glob('./test_images/*.jpg')
         # imagenames = ['./test_images/test3.jpg']
 
-        imagenames = ['./frames/frame_0614.jpg']
+        imagenames = ['./frames/frame_0613.jpg']
 
         for imagename in imagenames:
 

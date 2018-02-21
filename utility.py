@@ -113,15 +113,17 @@ def gradientThreshold(img, kernelsize):
     imx = img.shape[1]
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
     s_channel = hls[:,:,2]
-    gradx = abs_sobel_thresh(s_channel, orient='x', sobel_kernel=kernelsize, thresh=(4, 255))
-    grady = abs_sobel_thresh(s_channel, orient='y', sobel_kernel=kernelsize, thresh=(5, 255))
-    mag_binary = mag_thresh(s_channel, sobel_kernel=kernelsize, thresh=(2, 255))
-    slope = 0.3
+    gradx = abs_sobel_thresh(s_channel, orient='x', sobel_kernel=kernelsize, thresh=(8, 255))
+    grady = abs_sobel_thresh(s_channel, orient='y', sobel_kernel=kernelsize, thresh=(8, 255))
+    mag_binary = mag_thresh(s_channel, sobel_kernel=kernelsize, thresh=(5, 255))
+    slope = 0.5
     dir_binary = dir_thresh(s_channel, sobel_kernel=kernelsize, thresh=(-slope*np.pi, slope*np.pi))
     combined = np.zeros_like(dir_binary)
     combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
     # Remove hood points with spatial filter
     combined[650:imy,350:1000] = 0
+    vertices = np.array([[(320,imy),(320, 0), (930, 0), (930,imy)]], dtype=np.int32)
+    cv2.fillPoly(combined,  vertices, 0)
 
     if(saveplots):
         plt.figure(1300)
