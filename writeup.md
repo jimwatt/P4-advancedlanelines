@@ -31,7 +31,7 @@
 
 ### Goal:
 
-Given a video stream containing images of the road ahead, use the painted lane markings in the image to detect and annotate the lane ahead.  Also, determine the geometry of the lane including radii of curvature and position of the vehicle in the lane.
+Given a video stream containing images of the road ahead, use the painted lane markings in the image to detect and annotate the lane ahead.  Also, determine the geometry of the lane including radii of curvature and the position of the vehicle in the lane.
 
 Example of the final output is shown here:
 
@@ -65,10 +65,10 @@ You're reading it!
 
 The source code for this project is found in the following files:
 
-1. **p4code.py** : The main entry point for the code.  Run the code by entering `python p4code.py`
+1. **p4code.py** : The main entry point for the code.  Run the code by entering `ipython p4code.py`
 2. **utility.py** : Various general purpose helper functions for working with images, including color and gradient thresholding.
 3. **calibrate.py** : Functions for performing camera calibration using images of chessboards to correct for distortion.
-4. **perspective.py** : Functions for performing image perspective transformations.  This is how we achieve the birds eye view of the road.
+4. **perspective.py** : Functions for performing image perspective transformations.  This is how we achieve the bird's eye view of the road.
 5. **lanelines.py** : Functions for extracting lane lines from a previously thresholded image.  The thresholded image should try to retain only those pixels that are part of the lane markings.  
 
 ### Camera Calibration
@@ -159,13 +159,9 @@ I found that neither color thresholding alone, nor gradient thresholding alone w
 
 #### Color Thresholding:#### 
 
-I used both rgb and hsv color spaces to detect the lane markings.
+I used both **rgb** and **hsv** color spaces to detect the lane markings.
 
-
-
-
-
-Consider the following original image in the warped birdseye perspective:
+Consider the following original image in the warped bird's eye perspective:
 
 ![alt text][image8]
 
@@ -177,13 +173,15 @@ Likewise, we apply thresholds to each of the three channels in the HSV color spa
 
 ![alt text][image21]
 
-Selecting only the points detected in both color spaces yields the following collection of pixels as candidates for the lane lines.
+Selecting only the points detected in both color spaces yields the following collection of pixels as candidates for the lane lines:
 
 ![alt text][image9]
 
 #### Gradient Thresholding#### 
 
-We also detect lane line pixels by computing and thresholding of the gradients in the S-channel of the HSV color space.  We apply thresholds on the size of the x and y gradients individually, as well as their magnitude.  I did not find much additional benefit when including direction of the gradient.
+We also detect lane line pixels by computing and thresholding of the gradients in the S-channel of the HSV color space.  We apply thresholds on the size of the x and y gradients individually, as well as their magnitude.  
+
+I did not find much additional benefit when including direction of the gradient.
 
 The image below shows which pixels are detected using gradients.
 
@@ -213,9 +211,9 @@ I used the approach provided in the Udacity course material to determine points 
 
 * As shown below, the detected pixel means are fit with a quadratic polynomial (yellow lines).
 
-* Finally, these yellow lines are sampled to form the edges of a polygon, that is color green, and then projected back onto the original road surface using the inverse perspective transformation as shown in the "Results" section to follow. 
-
   ![alt text][image24]
+
+* Finally, these yellow lines are sampled to form the edges of a polygon, that is colored green, and then projected back onto the original road surface using the inverse perspective transformation as shown in the "Results" section to follow. 
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -227,9 +225,9 @@ Given a parabola,
 
 ​	$x= Ay^2 + By + C$,
 
-the radius of curvature at any point y is given as:
+the radius of curvature $R(y)$ at any point y is given as:
 
-​	$R(A,B,C) = \frac{(1+(2Ay+B)^2)^{3/2}}{|2A|}$
+​	$R(y;A,B,C) = \frac{(1+(2Ay+B)^2)^{3/2}}{|2A|}$
 
 Before applying this result, we first have to realize that the coefficients we computed in the curve fit are in the _pixel_ space, and we need to map these to physical space (measured in meters). 
 
@@ -251,7 +249,7 @@ where we can read off the new fit coefficients as
 
 Then, we compute the radius of curvature (in meters) using $R(a,b,c)$.  
 
-Computing radii of curvature for both lanes, we annotate the image withe the result.
+Computing radii of curvature for both lanes, we annotate the image with the result.
 
 We also compute the lateral offset of the car in the lane (assuming the camera is located at the center of the front grille of the vehicle).
 
@@ -292,7 +290,7 @@ Here's a [link to my video result](./ann_project_video.mp4)
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 * The final pipeline works well and produces stable results.
-* An important aspect of the development was to generate visualization tools to see the effects of the various thresholding parameters.  This was very important.  Without the help of the visualization tools to see how the various thresholds were affecting the various contributions to the thresholding scheme, I was essentially a monkey at a typewriter.  
-* I am concerned that the result shown here is the result of too much peeking at the results and tinkering with the parameters.  In other words, I have overfit the parameters for the given video, and it may be fragile to other videos.
+* An important aspect of the development was to generate visualization tools to see the effects of the various thresholding parameters.  This was _very_ important.  Without the help of the visualization tools to see how the various thresholds were affecting the various contributions to the thresholding scheme, I was essentially a monkey at a typewriter.  
+* I am concerned that the result shown here is the result of too much peeking at the results and tinkering with the parameters.  In other words, I have overfit the parameters for the given video, and it may be fragile to other scenarios.
 * If I had more time (and money) to continue this project, I would want to integrate more robust approaches such as a filtering approach that retains a state for the lane fit coefficients, and then updates the coefficients using each successive image as a measurement.
 * I would also want to test the approach on more diverse videos to verify robustness. 
