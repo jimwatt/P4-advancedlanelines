@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
+saveplots = False
 ##########################################################################
 # Define some general purpose utility helper functions
 ##########################################################################
@@ -56,41 +57,46 @@ def dir_thresh(image, sobel_kernel, thresh):
 # threshold an image using hsv values
 def col_hsvthresh(image):
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV).astype(np.float)
-    # for ii in range(3):
-    #     plt.figure(800+ii)
-    #     plt.imshow(hsv[:,:,ii])
-    #     plt.title("hsv %d" % ii)
     h = hsv[:,:,0]
     s = hsv[:,:,1]
     v = hsv[:,:,2]
     hsv_binary = np.zeros_like(v)
-    hsv_binary[v >= 50 ] = 1
-    plt.figure(803)
-    plt.imshow(np.uint8(hsv_binary)*255)
-    plt.title("HSV combined")
-    plt.savefig("output_images/hsv_combined.png")
-    plt.close()
+    hsv_binary[(h<60) | (h<50) | (v >=130) ] = 1
+    if(saveplots):
+        plt.figure(800)
+        for ii in range(3):
+            plt.subplot(2,2,ii+1)
+            plt.imshow(hsv[:,:,ii])
+            plt.title("hsv %d" % ii)
+            plt.colorbar()
+        plt.subplot(2,2,4)
+        plt.imshow(np.uint8(hsv_binary)*255)
+        plt.title("HSV combined")
+        plt.savefig("output_images/hsv_combined.png")
+        # plt.close()
     return hsv_binary
 
 # threshold an image using rgb values
 def col_rgbthresh(rgb):
-    # for ii in range(3):
-    #     plt.figure(900+ii)
-    #     plt.imshow(rgb[:,:,ii])
-    #     plt.title("rgb %d" % ii)
-    #     plt.colorbar()
     r = rgb[:,:,0]
     g = rgb[:,:,1]
     b = rgb[:,:,2]
     rgb_binary = np.zeros_like(r)
-    rgb_binary[(r >= 80) 
-                | (g >= 80)  
-                | (b >= 80) ] = 1  
-    plt.figure(903)
-    plt.imshow(np.uint8(rgb_binary)*255)
-    plt.title("RGB combined")
-    plt.savefig("output_images/rgb_combined.png")
-    plt.close()
+    rgb_binary[(r >= 140) 
+                | (g >= 90)  
+                | (b >= 140) ] = 1
+    if(saveplots):
+        plt.figure(900)
+        for ii in range(3):
+            plt.subplot(2,2,ii+1)
+            plt.imshow(rgb[:,:,ii])
+            plt.title("rgb %d" % ii)
+            plt.colorbar()
+        plt.subplot(2,2,4)
+        plt.imshow(np.uint8(rgb_binary)*255)
+        plt.title("RGB combined")
+        plt.savefig("output_images/rgb_combined.png")
+        # plt.close()
     return rgb_binary
 
 # threshold an image on color using rgb and hasv spaces
@@ -103,41 +109,78 @@ def colorThreshold(img):
 
 # threshold an rgb image using gradients in the s channel
 def gradientThreshold(img, kernelsize):
+    imy = img.shape[0]
+    imx = img.shape[1]
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
     s_channel = hls[:,:,2]
-    gradx = abs_sobel_thresh(s_channel, orient='x', sobel_kernel=kernelsize, thresh=(25, 255))
-    grady = abs_sobel_thresh(s_channel, orient='y', sobel_kernel=kernelsize, thresh=(25, 255))
-    mag_binary = mag_thresh(s_channel, sobel_kernel=kernelsize, thresh=(6, 255))
-    slope = 0.4
+    gradx = abs_sobel_thresh(s_channel, orient='x', sobel_kernel=kernelsize, thresh=(4, 255))
+    grady = abs_sobel_thresh(s_channel, orient='y', sobel_kernel=kernelsize, thresh=(5, 255))
+    mag_binary = mag_thresh(s_channel, sobel_kernel=kernelsize, thresh=(2, 255))
+    slope = 0.3
     dir_binary = dir_thresh(s_channel, sobel_kernel=kernelsize, thresh=(-slope*np.pi, slope*np.pi))
     combined = np.zeros_like(dir_binary)
     combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
+    # Remove hood points with spatial filter
+    combined[650:imy,350:1000] = 0
+
+    if(saveplots):
+        plt.figure(1300)
+        plt.subplot(3,2,1)
+        plt.imshow(np.uint8(gradx)*255)
+        plt.title("gradx")
+        plt.colorbar()
+        plt.subplot(3,2,2)
+        plt.imshow(np.uint8(grady)*255)
+        plt.title("grady")
+        plt.colorbar()
+        plt.subplot(3,2,3)
+        plt.imshow(np.uint8(mag_binary)*255)
+        plt.title("mag_binary")
+        plt.colorbar()
+        plt.subplot(3,2,4)
+        plt.imshow(np.uint8(dir_binary)*255)
+        plt.title("dir_binary")
+        plt.savefig("output_images/grad_combined.png")
+        plt.subplot(3,2,5)
+        plt.imshow(np.uint8(combined)*255)
+        plt.title("grad combined")
+        plt.savefig("output_images/grad_combined.png")
+        # plt.close()
     return combined
 
 # combine the results of color and gradient thresholding
 def colgradientThresholding(img):
 
-    kernelsize = 5
+    kernelsize = 3
     
     colpixels = colorThreshold(img)
     scaled_col = np.uint8(255*colpixels)
     
-    plt.figure(304)
-    plt.imshow(scaled_col)
-    plt.title("Color Thresholded")
-    plt.savefig("output_images/color_threshold.png")
-    plt.close()
+    if(saveplots):
+        plt.figure(304)
+        plt.imshow(scaled_col)
+        plt.title("Color Thresholded")
+        plt.savefig("output_images/color_threshold.png")
+        # plt.close()
 
     grpixels = gradientThreshold(img,kernelsize)
     scaled_gr = np.uint8(255*grpixels)
     
-    plt.figure(305)
-    plt.imshow(scaled_gr)
-    plt.title("Gradient Thresholded")
-    plt.savefig("output_images/gradient_threshold.png")
-    plt.close()
+    if(saveplots):
+        plt.figure(305)
+        plt.imshow(scaled_gr)
+        plt.title("Gradient Thresholded")
+        plt.savefig("output_images/gradient_threshold.png")
+        # plt.close()
 
     combined_binary = np.zeros_like(colpixels)
     combined_binary[ (colpixels==1) & (grpixels == 1) ] = 1
+
+    if(saveplots):
+        plt.figure(306)
+        plt.imshow(np.uint8(combined_binary)*255)
+        plt.title("Combined Threshold")
+        plt.savefig("output_images/combined_threshold.png")
+        # plt.close()
 
     return combined_binary

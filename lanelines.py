@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
+saveplots = False
+
 #################################################################################'
 # Functionality for finding lanelines
 #################################################################################
@@ -26,11 +28,12 @@ def findLaneLines(pristine,binary_warped, Minv):
     # Take a histogram of the (bottom) half of the image
     histogram = np.sum(binary_warped, axis=0)
 
-    plt.figure(80)
-    plt.plot(histogram)
-    plt.title("Histogram of Laneline Pixels")
-    plt.savefig("output_images/histogram.png")
-    plt.close()
+    if(saveplots):
+        plt.figure(80)
+        plt.plot(histogram)
+        plt.title("Histogram of Laneline Pixels")
+        plt.savefig("output_images/histogram.png")
+        # plt.close()
 
     # Create an output image to draw on and  visualize the result
     out_img = np.uint8(np.dstack((binary_warped, binary_warped, binary_warped))*255)
@@ -53,9 +56,9 @@ def findLaneLines(pristine,binary_warped, Minv):
     leftx_current = leftx_base
     rightx_current = rightx_base
     # Set the width of the windows +/- margin
-    margin = 40
+    margin = 150
     # Set minimum number of pixels found to recenter window
-    minpix = 50
+    minpix = 20
     # Create empty lists to receive left and right lane pixel indices
     left_lane_inds = []
     right_lane_inds = []
@@ -112,14 +115,15 @@ def findLaneLines(pristine,binary_warped, Minv):
 
     out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
     out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
-    plt.figure(30)
-    plt.imshow(out_img)
-    plt.plot(left_fitx, ploty, color='yellow')
-    plt.plot(right_fitx, ploty, color='yellow')
-    plt.xlim(0, 1280)
-    plt.ylim(720, 0)
-    plt.savefig("output_images/searching.png")
-    plt.close()
+    if(saveplots):
+        plt.figure(30)
+        plt.imshow(out_img)
+        plt.plot(left_fitx, ploty, color='yellow')
+        plt.plot(right_fitx, ploty, color='yellow')
+        plt.xlim(0, 1280)
+        plt.ylim(720, 0)
+        plt.savefig("output_images/searching.png")
+        # plt.close()
 
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)

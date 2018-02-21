@@ -17,7 +17,11 @@ import calibrate as cal # camera calibration functionality
 import perspective as ps # perspective transformation (warping) functionality
 #############################################################################
 
-saveplots = True
+mode = 1
+if(mode==0):
+    saveplots = True
+else:
+    saveplots = False
 
 ##################################################################################################
 # A. CAMERA CALIBRATION: Calibrate the Camera: Find the parameters to correct for image distortion
@@ -65,7 +69,7 @@ def pipeline(image):
         plt.imshow(img)
         plt.title("Original Image")
         plt.savefig("output_images/original_image.png")
-        plt.close()
+        # plt.close()
 
     #####################################################
     # 1. Use camera calibration to remove distortion
@@ -78,7 +82,7 @@ def pipeline(image):
         plt.imshow(img)
         plt.title("Distortion Correction")
         plt.savefig("output_images/distortion_correction.png")
-        plt.close()
+        # plt.close()
 
     ######################################################
     # 2. Get warped perspective
@@ -90,22 +94,24 @@ def pipeline(image):
         plt.imshow(img)
         plt.title("Warped Perspective")
         plt.savefig("output_images/warped_perspective.png")
-        plt.close()
+        # plt.close()
 
 
     ############################################################
     # 3. Consider only the region of interest (remove the hood)
     ############################################################   
-    dybot = 145     # cut off the bottom dybot pixels (the hood)
-    ROIvertices = np.array([[(0,imy-dybot),(0, 0), (imx, 0), (imx,imy-dybot)]], dtype=np.int32)
-    img = ut.region_of_interest(img,ROIvertices)
+    # dybot = 588     # cut pixels below y=dybot (the hood)
+    # ROIvertices = np.array([[(0,dybot),(0, 0), (imx, 0), (imx,740)]], dtype=np.int32)
+    # img = ut.region_of_interest(img,ROIvertices)
 
     if(saveplots):
         plt.figure(103)
         plt.imshow(img)
         plt.title("Cropped to Region of Interest")
         plt.savefig("output_images/cropped.png")
-        plt.close()
+        # plt.close()
+        # plt.show()
+
 
     #######################################################
     # 4. Color and gradient thresholding in HLS and RGB
@@ -118,7 +124,7 @@ def pipeline(image):
         plt.imshow(scaled_combined)
         plt.title("Thresholded Image")
         plt.savefig("output_images/thresholded.png")
-        plt.close()
+        # plt.close()
 
 
     ##########################################################
@@ -130,7 +136,7 @@ def pipeline(image):
         plt.imshow(llimg)
         plt.title("Polynomial Fit")
         plt.savefig("output_images/polynomialfit.png")
-        plt.close()
+        # plt.close()
 
     return llimg
     
@@ -140,9 +146,15 @@ def pipeline(image):
 
 if __name__ == '__main__':
 
+    
+
 # Let's choose what we want to do (process still images or video?)
-    processimages = True
-    processvideos = False
+    if(mode==0):
+        processimages = True
+        processvideos = False
+    else:
+        processimages = False
+        processvideos = True
 
 #########################################################################
 # Process images
@@ -150,7 +162,9 @@ if __name__ == '__main__':
 
     if processimages:
         # imagenames = glob.glob('./test_images/*.jpg')
-        imagenames = ['./test_images/test3.jpg']
+        # imagenames = ['./test_images/test3.jpg']
+
+        imagenames = ['./frames/frame_0614.jpg']
 
         for imagename in imagenames:
 
@@ -171,7 +185,7 @@ if __name__ == '__main__':
             ax2.set_title('Pipeline Result', fontsize=12)
             plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
             plt.savefig("output_images/ann_%s" % filename)
-            plt.close()
+            # plt.close()
 
 
 #########################################################################
@@ -189,4 +203,6 @@ if __name__ == '__main__':
             get_ipython().run_line_magic('time', 'processed_clip.write_videofile(processed_video, audio=False)')    # save the output
 
     print("DONE!!!")
+
+    plt.show()
     
