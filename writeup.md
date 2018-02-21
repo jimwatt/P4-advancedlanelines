@@ -105,24 +105,25 @@ warpedrectvertices = np.array([
 ```
 
 ```python
-offset = 320
+offsetx = 160
+offsety = 60
 imx = imgrect.shape[1]
 imy = imgrect.shape[0]
 rectvertices = np.array([
-	    [offset, imy],
-	    [offset, 0],
-	    [imx-offset, 0],
-	    [imx-offset, imy]], dtype = np.float32)
+	    [offsetx, imy-offsety],
+	    [offsetx, offsety],
+	    [imx-offsetx, offsety],
+	    [imx-offsetx, imy-offsety]], dtype = np.float32)
 ```
 
 This resulted in the following source and destination points:
 
 | Source    | Destination |
 | --------- | ----------- |
-| 305, 650  | 320, 720    |
-| 525, 500  | 320, 0      |
-| 760, 500  | 960, 0      |
-| 1000, 650 | 960, 720    |
+| 305, 650  | 160, 660    |
+| 525, 500  | 160, 60     |
+| 760, 500  | 1120, 60    |
+| 1000, 650 | 1120, 660   |
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 

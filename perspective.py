@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 
-saveplots = False
+saveplots = True
 
 def getPerspectiveTransforms():
 	imgrect = mpimg.imread("./test_images/straight_lines1.jpg")
