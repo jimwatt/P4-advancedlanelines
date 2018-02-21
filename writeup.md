@@ -20,8 +20,8 @@
 [image17]: ./output_images/ann_test4.jpg	"test4"
 [image18]: ./output_images/ann_test5.jpg	"test5"
 [image19]: ./output_images/ann_test6.jpg	"test6"
-[image20]: ./output_images/rgb_combined	"rgb"
-[image21]: ./output_images/hsv_combined	"hsv"
+[image20]: ./output_images/rgb_combined.png	"rgb"
+[image21]: ./output_images/hsv_combined.png	"hsv"
 [image22]: ./output_images/color_threshold.png	"color"
 [image23]: ./output_images/grad_combined.png	"grad"
 [image24]: ./output_images/searching.png	"searching"
@@ -170,7 +170,39 @@ For the following (warped) original image:
 
 Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
 
-![alt text][image5]
+![alt text][image12]
+
+![alt text][image13]
+
+![alt text][image14]
+
+![alt text][image15]
+
+![alt text][image16]
+
+![alt text][image17]
+
+![alt text][image18]
+
+![alt text][image19]
+
+![alt text][image20]
+
+![alt text][image21]
+
+![alt text][image22]
+
+![alt text][image23]
+
+![alt text][image25]
+
+![alt text][image24]
+
+
+
+
+
+
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -180,7 +212,7 @@ In lines 142 through 155 in `lanelines.py`, I computed the radius of curvature a
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
 
-![alt text][image6]
+![alt text][image26]
 
 ---
 
