@@ -31,9 +31,9 @@
 
 ### Goal:
 
-Given a video stream containing images of the road ahead, use the painted lane markings to annotate the lane ahead. 
+Given a video stream containing images of the road ahead, use the painted lane markings in the image to detect and annotate the lane ahead.  Also, determine the geometry of the lane including radii of curvature and position of the vehicle in the lane.
 
-Example output is shown here:
+Example of the final output is shown here:
 
 ![alt text][image1]
 
@@ -45,11 +45,10 @@ The goals / steps of this project are the following:
 
 * **Camera Calibration** : Correct the images for camera distortion.
 * **Perspective Warping** : Apply perspective warping to obtain a "bird's-eye" view of the road ahead.
-* **Image Cropping** : Crop the image to the region of interest.
 * **Pixel Thresholding** : Use color and gradient thresholding to detect pixels corresponding to lane line markings.
-* **Peak Finding** : Use simple windowing to determine location of the left and right lane lines at multiple locations in the road ahead.
+* **Peak Finding** : Use simple windowing to determine locations of the left and right lane lines at multiple locations in the road ahead.
 * **Curve Fitting** : Fit the left and right lane line locations with a quadratic polynomial.   
-* **Lane Geometry** : From the polynomial fit, determine the radius of curvature of each lane line, and the offset from center of the car in the lane.
+* **Lane Geometry** : From the polynomial fit, determine the radius of curvature of each lane line, and the vehicle offset from the center of the lane.
 * **Lane Annotation** : Map the fitted lane lines to the original image and annotate the image.
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -80,9 +79,9 @@ The code for this step is contained in the `calibrateCamera()` function definiti
 
 * I start by preparing "object points", which are the (x, y, z) coordinates of the chessboard corners in the world. I constrain the rectified chessboard corners to be fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `obj` is just a fixed array of coordinates, and `objpoints` will be appended with a copy of `obj` every time I successfully detect all chessboard corners in a test image. 
 * The list `imgpoints` is appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection (for each of the chessboard images in `./camer_cal`).  The `imgpoints` are detected using the openCV function `cv2.findChessBoardCorners()`.  Note that I used the `cv2.cornerSubPix()` routine (that uses an iterative solver) to further refine the corner locations within the image to subpixel resolution.
-* I then used `objpoints` and `imgpoints` as source and destination pairs to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+* I then used `objpoints` and `imgpoints` as source and destination pairs to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function. 
 
-Applying camera calibration corrections to the following image:
+For example, applying these camera calibration corrections to the following image:
 
 ![alt text][image2]
 
@@ -92,7 +91,7 @@ yields the following corrected image:
 
 ### Pipeline (single images)
 
-We now describe the steps in the image processing pipeline.  The pipeline is defined in lines 54-135 in `p4code.py`.  
+We now describe the steps in the image processing pipeline.  The pipeline is defined in lines 58-141 in `p4code.py`.  
 
 #### 1. Provide an example of a distortion-corrected image.
 
@@ -104,11 +103,11 @@ After applying the distortion corrections, we obtain this (very similar looking)
 
 ![alt text][image5]
 
-In the code, the distortion correction step is applied at line 74 in the code.
+In the code, the distortion correction step is applied at line 78 in the code.
 
 #### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `getPerspectiveTransforms()`, which appears in lines 5 through 40 in the file `perspective.py` .  The `getPerspectiveTransforms()` function defines `warpedrectvertices` as the pixel locations of an apparent rectangle in a perspective image (in which the lane lines are relatively straight so that the only warping is due to perspective --- not actual curvature), as well as destination points `rectvertices` which are hard-coded as the corners of a rectangle seen directly from above without perspective.   I chose to hard-code the source and destination points in the following manner: 
+The code for my perspective transform includes a function called `getPerspectiveTransforms()`, which appears in lines 8 through 69 in the file `perspective.py` .  The `getPerspectiveTransforms()` function defines `warpedrectvertices` as the pixel locations of an apparent rectangle in a perspective image (in which the lane lines are relatively straight so that the only warping is due to perspective --- not actual curvature), as well as destination points `rectvertices` which are hard-coded as the corners of a rectangle seen directly from above without perspective.   I chose to hard-code the source and destination points in the following manner: 
 
 ```
 # As determined from an image with relatively straight lane lines.
@@ -140,7 +139,7 @@ This resulted in the following source and destination points:
 | 760, 500  | 1120, 60    |
 | 1000, 650 | 1120, 660   |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+I verified that my perspective transform was working as expected by drawing the `src` and `dst` points on a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
 **Source:**
 
@@ -154,23 +153,117 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines 118 through 143 in `utility.py`).  
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines 150 through 184 in `utility.py`).  
 
 I found that neither color thresholding alone, nor gradient thresholding alone was sufficient to detect the lane markings along the entire length of the road.
 
-For the following (warped) original image:
+#### Color Thresholding:#### 
+
+I used both rgb and hsv color spaces to detect the lane markings.
+
+
+
+
+
+Consider the following original image in the warped birdseye perspective:
 
 ![alt text][image8]
 
-![alt text][image9]![alt text][image10]
+In the RGB color space, we apply thresholds on each channel to retain only the pixels (shown in yellow) in the fourth image in the following chart.
+
+![alt text][image20]
+
+Likewise, we apply thresholds to each of the three channels in the HSV color space, and retain only the pixels (again shown in yellow) in the following chart.
+
+![alt text][image21]
+
+Selecting only the points detected in both color spaces yields the following collection of pixels as candidates for the lane lines.
+
+![alt text][image9]
+
+#### Gradient Thresholding#### 
+
+We also detect lane line pixels by computing and thresholding of the gradients in the S-channel of the HSV color space.  We apply thresholds on the size of the x and y gradients individually, as well as their magnitude.  I did not find much additional benefit when including direction of the gradient.
+
+The image below shows which pixels are detected using gradients.
+
+![alt text][image23]
+
+Using gradients alone to detect lane markings, yields the following result:![alt text][image10]
+
+#### Combined Color and Gradient Thresholding####
+
+Keeping only those pixels detected by both color and gradient thresholding yields the following detections for the lane lines.
 
 ![alt text][image11]
 
+It remains to fit these pixels to determine the geometry of the left and right lane lines.
+
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+I used the approach provided in the Udacity course material to determine points along the lane line, and then fitting those points with a quadratic polynomial.
 
-![alt text][image12]
+* First, we take a histogram of the detected pixels to identify base locations for both the right and left lines.  An example histogram is shown here: 
+
+
+
+![alt text][image25]
+
+* Then, we use the windowing approach to successively move up the image to determine the likely location of the lane markings.  In each row, the mean of the detected pixels provides the data for the polynomial curve fit.
+
+* As shown below, the detected pixel means are fit with a quadratic polynomial (yellow lines).
+
+* Finally, these yellow lines are sampled to form the edges of a polygon, that is color green, and then projected back onto the original road surface using the inverse perspective transformation as shown in the "Results" section to follow. 
+
+  ![alt text][image24]
+
+#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+
+In lines 146 through 160 in `lanelines.py`, I computed the radius of curvature and offset from the center of the lane.
+
+I computed the radius of curvature using the following analytical formula:
+
+Given a parabola,
+
+​	$x= Ay^2 + By + C$,
+
+the radius of curvature at any point y is given as:
+
+​	$R(A,B,C) = \frac{(1+(2Ay+B)^2)^{3/2}}{|2A|}$
+
+Before applying this result, we first have to realize that the coefficients we computed in the curve fit are in the _pixel_ space, and we need to map these to physical space (measured in meters). 
+
+If $m_x$ is the number of meters per pixel in the $x$-direction, and $m_y$ is the number of meters per pixel in the $y$-direction, than we have the change of coordinates:
+
+​	$x = X/m_x$, and $y = Y/m_y$.
+
+Applying these change of coordinates, allows us to see that the parabolic fit in physical space is given by:
+
+​	$X = \frac{m_x}{m_y^2}AY^2 + \frac{m_x}{m_y}By + m_xC$,
+
+where we can read off the new fit coefficients as
+
+​	$a =  \frac{m_x}{m_y^2}A$,
+
+​	$b =  \frac{m_x}{m_y}B$,
+
+​	$c = m_xC$.  (typo in the Udacity course for the C-coefficient.)
+
+Then, we compute the radius of curvature (in meters) using $R(a,b,c)$.  
+
+Computing radii of curvature for both lanes, we annotate the image withe the result.
+
+We also compute the lateral offset of the car in the lane (assuming the camera is located at the center of the front grille of the vehicle).
+
+Here is an example of my result on a test image:
+
+![alt text][image26]
+
+## Results: Test Images##
+
+Here are the results of applying the lane detection pipeline to the test images provided in the repository.
+
+##![alt text][image12]
 
 ![alt text][image13]
 
@@ -186,37 +279,7 @@ Then I did some other stuff and fit my lane lines with a 2nd order polynomial ki
 
 ![alt text][image19]
 
-![alt text][image20]
-
-![alt text][image21]
-
-![alt text][image22]
-
-![alt text][image23]
-
-![alt text][image25]
-
-![alt text][image24]
-
-
-
-
-
-
-
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
-
-In lines 142 through 155 in `lanelines.py`, I computed the radius of curvature and offset from the center of the lane.
-
-16. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
-
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
-
-![alt text][image26]
-
----
-
-### Pipeline (video)
+## Results: Video##
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
@@ -228,4 +291,8 @@ Here's a [link to my video result](./ann_project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+* The final pipeline works well and produces stable results.
+* An important aspect of the development was to generate visualization tools to see the effects of the various thresholding parameters.  This was very important.  Without the help of the visualization tools to see how the various thresholds were affecting the various contributions to the thresholding scheme, I was essentially a monkey at a typewriter.  
+* I am concerned that the result shown here is the result of too much peeking at the results and tinkering with the parameters.  In other words, I have overfit the parameters for the given video, and it may be fragile to other videos.
+* If I had more time (and money) to continue this project, I would want to integrate more robust approaches such as a filtering approach that retains a state for the lane fit coefficients, and then updates the coefficients using each successive image as a measurement.
+* I would also want to test the approach on more diverse videos to verify robustness. 
