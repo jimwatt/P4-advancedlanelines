@@ -294,3 +294,4 @@ Here's a [link to my video result](./ann_project_video.mp4)
 * I am concerned that the result shown here is the result of too much peeking at the results and tinkering with the parameters.  In other words, I have overfit the parameters for the given video, and it may be fragile to other scenarios.
 * If I had more time (and money) to continue this project, I would want to integrate more robust approaches such as a filtering approach that retains a state for the lane fit coefficients, and then updates the coefficients using each successive image as a measurement.
 * I would also want to test the approach on more diverse videos to verify robustness. 
+* Other improvements include ensuring that the code does not break if no lane markings are detected.
